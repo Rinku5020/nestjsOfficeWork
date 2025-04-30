@@ -1,85 +1,85 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete,ValidationPipe, Put, Res, Render,} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,ValidationPipe, Put, Res, Render, UseInterceptors, UploadedFile, Query,} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Response } from 'express';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { diskStorage } from 'multer';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-
-@Get("/")
+  @Get("/")
   DashboardView(@Res() res: Response) {
-  res.render('dashboard');
-}
-
-@Get("form")
-  FormView(@Res() res: Response) {
-  res.render('form');
-}
-
-@Post('createForm')
-@Render('form')
-async create(@Body() createUserDto: CreateUserDto) {
-  console.log('Submitted data:', createUserDto);
-  const { hobbies = [], gender = '', image = '' } = createUserDto;
-
-  const hobbiesArray = Array.isArray(hobbies) ? hobbies : [hobbies];
-
-  const checked = {
-    playing: hobbiesArray.includes('playing') ? 'checked' : '',
-    reading: hobbiesArray.includes('reading') ? 'checked' : '',
-    travelling: hobbiesArray.includes('travelling') ? 'checked' : '',
-  };
-
-  const genderChecked = {
-    maleChecked: gender === 'male' ? 'checked' : '',
-    femaleChecked: gender === 'female' ? 'checked' : '',
-  };
-
-  const isMissing = [
-    'FirstName',
-    'LastName',
-    'Email',
-    'Phone',
-    'gender',
-    'hobbies',
-    'dateOfBirth',
-    'address',
-    'image',
-  ].some((field) => !createUserDto[field]);
-
-  if (isMissing) {
-    return {
-      errorMessage: 'All fields are required',
-      oldInput: createUserDto,
-      checked,
-      ...genderChecked,
-      imagePath: image,
-    };
+    res.render('dashboard');
   }
 
-  await this.userService.create(createUserDto);
+  @Get("form")
+  FormView(@Res() res: Response) {
+    res.render('form');
+  }
 
-  return {
-    successMessage: 'Form submitted successfully!',
-    oldInput: {},
-    checked: {},
-    maleChecked: '',
-    femaleChecked: '',
-    imagePath: '',
-  };
-}
+  @Post('createForm')
+  @UseInterceptors(FileInterceptor('image', {
+    storage: diskStorage({
+      destination: './public/uploads',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, uniqueSuffix + extname(file.originalname));
+      }
+    })
+  }))
+  async create(
+    @UploadedFile() image: Express.Multer.File,
+    @Body() body: any,
+    @Res() res: Response
+  ) {
+    const createUserDto = plainToInstance(CreateUserDto, {
+      ...body,
+      image: image?.filename || '',
+    });
 
+    const errors = await validate(createUserDto);
+    const errorMessages: Record<string, string> = {};
 
+    if (errors.length > 0) {
+      errors.forEach((err) => {
+        if (err.constraints) {
+          errorMessages[err.property] = Object.values(err.constraints)[0];
+        }
+      });
 
+      return res.status(400).render('form', {
+        errors: errorMessages,
+        old: body
+      });
+    }
 
+    try {
+      await this.userService.create(createUserDto);
+      return res.redirect(`/user/getForm?message=User created successfully`);
+    } catch (err) {
+      const msg =
+        err.message === 'Email already registered'
+          ? err.message
+          : 'Something went wrong. Email already registered.';
+    
+      return res.status(400).render('form', {
+        error: msg,
+        old: body
+      });
+    }
+    
+  }
 
   @Get('getForm')
-  async findAll(@Res() res: Response) {
+  async findAll(@Res() res: Response, @Query('message') message: string) {
     const Data = await this.userService.findAll();
-    res.render('dataTable', { Data });
+    res.render('dataTable', { Data, message });
   }
 
   @Get('getForm/:id')
@@ -92,8 +92,9 @@ async create(@Body() createUserDto: CreateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
 
-  @Delete('/deleteForm/:id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
-  }
+ @Get('delete/:id')
+async remove(@Param('id') id: string, @Res() res: Response) {
+  await this.userService.remove(+id); 
+  return res.redirect('/user/getForm?message=User deleted successfully!');
+}
 }

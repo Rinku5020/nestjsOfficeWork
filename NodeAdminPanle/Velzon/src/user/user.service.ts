@@ -11,7 +11,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     let user : User = new User();
     user.FirstName = createUserDto.FirstName;
     user.LastName = createUserDto.LastName;
@@ -22,9 +22,20 @@ export class UserService {
     user.dateOfBirth = createUserDto.dateOfBirth;
     user.address = createUserDto.address;
     user.image = createUserDto.image;
-    return this.userRepository.save(user)
+    try {
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        
+        if (error.message.includes('Email')) {
+          throw new Error('Email already registered');
+        }
+      }
+      
+      throw new Error('Database error');
+    }
   }
-
+  
   findAll() {
     return this.userRepository.find();
   }

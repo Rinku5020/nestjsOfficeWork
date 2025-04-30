@@ -1,7 +1,6 @@
 import { IsAlpha, IsEmail, IsString, IsNumberString, IsDateString, IsArray, IsNotEmpty, Matches, IsIn } from "class-validator";
 import { Transform } from 'class-transformer';
 
-
 export class CreateUserDto {
     @IsAlpha()
     @IsNotEmpty()
@@ -26,9 +25,6 @@ export class CreateUserDto {
     @IsIn(['male', 'female'], { message: 'Gender must be male or female' })
     gender: string;
 
-
-
-    
     @IsString({ each: true })
     @IsArray()
     @IsNotEmpty()

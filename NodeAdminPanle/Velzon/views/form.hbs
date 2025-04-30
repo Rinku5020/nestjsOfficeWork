@@ -1,5 +1,4 @@
 
-
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
     data-sidebar-image="none">
@@ -934,18 +933,6 @@
                             </div>
                         </li> <!-- end Dashboard Menu -->
 
-
-
-
-
-
-
-
-
-
-
-
-
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="#sidebarTables" data-bs-toggle="collapse" role="button"
                                 aria-expanded="false" aria-controls="sidebarTables">
@@ -997,80 +984,17 @@
                     </div>
                     <!-- end page title -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                     <div class="row">
                         <div class="col-xl-12">
                             <div class="card">
-                                <div class="card-header">
+                                 <div class="card-header d-flex justify-content-between">
                                     <h4 class="card-title mb-0">Vertical nav Steps</h4>
+                                        <a href="user/getForm" class="btn btn-primary">Show User</a>
                                 </div><!-- end card header -->
+
                                 <div class="card-body form-steps">
 
-                                    <form class="vertical-navs-step" action="/user/createForm" method="POST">
+                                    <form class="vertical-navs-step" action="/user/createForm" method="POST" enctype="multipart/form-data">
                                         <div class="row gy-5">
                                             <div class="col-lg-3">
                                                 <div class="nav flex-column custom-nav nav-pills" role="tablist"
@@ -1103,21 +1027,6 @@
                                                 <!-- end nav -->
                                             </div> <!-- end col-->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                           
                                                 <div class="col-lg-6">
                                                     <div class="px-lg-4">
                                                         <div class="tab-content">
@@ -1135,14 +1044,17 @@
                                                                             <label for="firstName" class="form-label">First
                                                                                 name</label>
                                                                             <input type="text" class="form-control" id="firstName"
-                                                                                name="FirstName" placeholder="First Name" />
+                                                                                name="FirstName" placeholder="First Name" value="{{old.FirstName}}" />
+                                                                                <span style="color:red">{{errors.FirstName}}</span>
+                                                                            
                                                                         </div>
 
                                                                         <div class="col-sm-6">
                                                                             <label for="lastName" class="form-label">Last
                                                                                 name</label>
                                                                             <input type="text" class="form-control" id="lastName"
-                                                                                name="LastName" placeholder="Last Name" />
+                                                                                name="LastName" placeholder="Last Name"  value="{{old.LastName}}"/>
+                                                                                 <span style="color:red">{{errors.LastName}}</span>
                                                                         </div>
 
                                                                         <div class="col-12">
@@ -1150,15 +1062,21 @@
                                                                             <div class="input-group">
 
                                                                                 <input type="text" class="form-control" id="phone"
-                                                                                    name="Phone" placeholder="Phone" />
+                                                                                    name="Phone" placeholder="Phone" value="{{old.Phone}}" />
+                                                                                    
                                                                             </div>
+                                                                            <span style="color:red">{{errors.Phone}}</span>
                                                                         </div>
 
                                                                         <div class="col-12">
                                                                             <label for="email" class="form-label">Email
                                                                             </label>
                                                                             <input type="email" class="form-control" id="email" name="Email"
-                                                                                placeholder="Email" />
+                                                                                placeholder="Email" value="{{old.Email}}" />
+                                                                                <span style="color:red">{{errors.Email}}</span>
+                                                                                {{#if error}}
+                                                                                        <span class="text-danger">{{error}}</span>
+                                                                                {{/if}}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1184,7 +1102,8 @@
                                                                     <div class="col-12">
                                                                         <label for="address" class="form-label">Address</label>
                                                                         <textarea class="form-control" id="address"
-                                                                            name="address"></textarea>
+                                                                            name="address" >{{old.address}}</textarea>
+                                                                             <span style="color:red">{{errors.address}}</span>
                                                                     </div>
                                                                 </div>
 
@@ -1196,14 +1115,14 @@
                                                                         <div class="form-check">
 
                                                                             <label><input type="radio" class="form-check-input"
-                                                                                    name="gender" value="male" /> Male</label>
+                                                                                    name="gender" value="male"  /> Male</label>
 
                                                                         </div>
                                                                         <div class="form-check">
                                                                             <label><input type="radio" class="form-check-input"
-                                                                                    name="gender" value="female" /> Female</label>
-
+                                                                                    name="gender" value="female"/> Female</label>
                                                                         </div>
+                                                                        <span style="color:red">{{errors.gender}}</span>
                                                                     </div>
 
                                                                     <div class="col-md-4">
@@ -1222,14 +1141,15 @@
                                                                             <label><input type="checkbox" class="form-check-input"
                                                                                     name="hobbies" value="travelling" /> Travelling</label>
                                                                         </div>
-
+                                                                        <span style="color:red">{{errors.hobbies}}</span>
                                                                     </div>
 
                                                                 </div>
 
                                                                 <div class="col-md-6">
                                                                     <label for="" class="form-label">Birthdate</label>
-                                                                    <input type="date" class="form-control" name="dateOfBirth" />
+                                                                    <input type="date" class="form-control" name="dateOfBirth" value="{{old.dateOfBirth}}" />
+                                                                    <span style="color:red">{{errors.dateOfBirth}}</span>
                                                                 </div>
 
                                                                 <div class="d-flex align-items-start gap-3 mt-4">
@@ -1254,8 +1174,10 @@
                                                                 </div>
                                                                 <div>
                                                                     <label for="" class="form-label">Upload Image</label>
-                                                                    <input type="text" class="form-control" name="image"
-                                                                        placeholder="Image path or URL" />
+                                                                    <input type="file" class="form-control" name="image"
+                                                                        placeholder="Image path or URL" value="{{old.image}}" />
+                                                                        <span style="color:red">{{errors.image}}</span>
+                                                                        
                                                                 </div>
 
                                                                 <div class="d-flex align-items-start gap-3 mt-4">
@@ -1264,7 +1186,7 @@
                                                                             class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
                                                                         Back to Info</button>
                                                                     <button type="submit" class="btn btn-success">Complete</button>
-
+                                                                   
                                                                 </div>
                                                             </div>
                                                             <!-- end tab pane -->
@@ -1284,29 +1206,6 @@
                         </div>
                         <!-- end col -->
                     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                     <footer class="footer">
                         <div class="container-fluid">
@@ -1328,8 +1227,6 @@
             </div>
             <!-- END layout-wrapper -->
 
-
-
             <!--start back-to-top-->
             <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
                 <i class="ri-arrow-up-line"></i>
@@ -1350,6 +1247,7 @@
             <script src="assets/js/app.js"></script>
             <!-- form wizard init -->
     <script src="assets/js/pages/form-wizard.init.js"></script>
+
 </body>
 
 </html>
