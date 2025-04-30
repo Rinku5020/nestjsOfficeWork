@@ -61,8 +61,8 @@ export class UserService {
     user.hobbies = updateUserDto.hobbies;
     user.dateOfBirth = updateUserDto.dateOfBirth;
     user.address = updateUserDto.address;
-    user.image = updateUserDto.image;
-    return this.userRepository.update(id, updateUserDto);
+    user.image = updateUserDto.image || user.image; 
+    return this.userRepository.save(user);
   }
 
   async remove(id: number) {

@@ -83,15 +83,44 @@ export class UserController {
   }
 
   @Get('getForm/:id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+ async findOne(@Param('id') id: string, @Res() res: Response) {
+   const user = await this.userService.findOne(+id);
+   const hobbies = user ? {
+    playing: user.hobbies.includes('playing'),
+    reading: user.hobbies.includes('reading'),
+    travelling: user.hobbies.includes('travelling')
+  } : { playing: false, reading: false, travelling: false };
+   res.render('editForm', { user,hobbies });
   }
 
-  @Put('updateForm/:id')
-  update(@Param('id') id: string, @Body(ValidationPipe) updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @Post('update/:id')
+  @UseInterceptors(FileInterceptor('image', {
+    storage: diskStorage({
+      destination: './public/uploads',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, uniqueSuffix + extname(file.originalname));
+      }
+    })
+  }))
+  async update(@Param('id') id: string, @Res() res: Response, @Body() body: any, @UploadedFile() image: Express.Multer.File) {
+    const { FirstName, LastName, Email, Phone, gender, hobbies, dateOfBirth, address } = body;
+    const updateUserDto = {
+      FirstName,
+      LastName,
+      Email,
+      Phone,
+      gender,
+      hobbies,
+      dateOfBirth,
+      address,
+      image: image?.filename || body.image 
+    };
+  
+    await this.userService.update(+id, updateUserDto);
+    return res.redirect('/user/getForm?message=User updated successfully!');
   }
-
+  
  @Get('delete/:id')
 async remove(@Param('id') id: string, @Res() res: Response) {
   await this.userService.remove(+id); 
