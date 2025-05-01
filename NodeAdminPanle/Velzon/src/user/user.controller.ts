@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete,ValidationPipe, Put, Res, Render, UseInterceptors, UploadedFile, Query,} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,ValidationPipe, Put, Res, Render, UseInterceptors, UploadedFile, Query, UseGuards,} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,22 +8,27 @@ import { plainToInstance } from 'class-transformer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get("/")
-  DashboardView(@Res() res: Response) {
-    res.render('dashboard');
-  }
+@Get('/')
+@UseGuards(AuthGuard) 
+userHome(@Query() query: any, @Res() res: Response) {
+  const { message } = query;
+  res.render('dashboard', { message }); // ✅ Pass message from query to template
+}
 
   @Get("form")
+  @UseGuards(AuthGuard) 
   FormView(@Res() res: Response) {
     res.render('form');
   }
 
   @Post('createForm')
+  @UseGuards(AuthGuard) 
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
       destination: './public/uploads',
@@ -77,12 +82,14 @@ export class UserController {
   }
 
   @Get('getForm')
+  @UseGuards(AuthGuard) 
   async findAll(@Res() res: Response, @Query('message') message: string) {
     const Data = await this.userService.findAll();
     res.render('dataTable', { Data, message });
   }
 
   @Get('getForm/:id')
+  @UseGuards(AuthGuard) 
  async findOne(@Param('id') id: string, @Res() res: Response) {
    const user = await this.userService.findOne(+id);
    const hobbies = user ? {
@@ -94,6 +101,7 @@ export class UserController {
   }
 
   @Post('update/:id')
+  @UseGuards(AuthGuard) 
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
       destination: './public/uploads',
@@ -122,6 +130,7 @@ export class UserController {
   }
   
  @Get('delete/:id')
+ @UseGuards(AuthGuard) 
 async remove(@Param('id') id: string, @Res() res: Response) {
   await this.userService.remove(+id); 
   return res.redirect('/user/getForm?message=User deleted successfully!');

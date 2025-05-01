@@ -1,30 +1,54 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Render, Query, Req } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 
+
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService) { }
 
-  @Post('login')
-  async login(@Body() body: { email: string; Password: string }, @Res() res: Response) {
+
+  @Get('login')
+  LoginView(@Query('message') message: string, @Res() res: Response) {
+    return res.render('login', { message });
+  }
+
+  @Post('logincheck')
+  async login(@Body() body: { email: string; Password: string }, @Res() res: Response, @Req() req: any) {
     const { email, Password } = body;
-    const admin = this.adminService.findByEmail(email);
-
-    if (!admin || admin.Password !== Password) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+    const admin = await this.adminService.findByEmail(email);
+    if (!admin) {
+      return res.redirect('/admin/login?message=invalid email or password');
     }
-
-    
-    return res.status(200).json({ message: 'Login successful', admin });
+    const hash = admin.password;
+    const isMatch = await bcrypt.compare(Password, hash);
+    if (!isMatch) {
+      return res.redirect('/admin/login?message=invalid email or password');
+    }
+    req.session.admin = {
+      id: admin.id,
+      email: admin.email,
+      
+      
+    };
+   
+    return res.redirect('/user/?message=login successfully');
   }
 
 
-  @Post()
-  create(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminService.create(createAdminDto);
+
+
+  @Get('logout')
+  logout(@Res() res: Response, @Req() req: Request & { session: any }) {
+    req.session.destroy((err: Error | null) => {
+      if (err) {
+        return res.status(500).json({ message: 'Logout failed' });
+      }
+      return res.status(302).redirect('/admin/login');
+    });
   }
 
   @Get()

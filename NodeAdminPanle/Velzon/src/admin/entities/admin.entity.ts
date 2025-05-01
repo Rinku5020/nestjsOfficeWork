@@ -11,9 +11,9 @@ export class Admin {
     @Column()
     LastName: string;
     @Column({ unique: true })
-    Email: string;
+    email: string;
     @Column()
-    Password: string;
+    password: string;
     @CreateDateColumn()
     createdAt: Date;
     @UpdateDateColumn()

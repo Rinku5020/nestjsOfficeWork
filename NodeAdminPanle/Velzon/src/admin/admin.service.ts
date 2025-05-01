@@ -2,21 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Admin, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { Admin } from './entities/admin.entity'; 
+
 
 @Injectable()
 export class AdminService {
   constructor(
       @InjectRepository(Admin)
-      private readonly adminRepository: Repository<Admin>,
+      private readonly adminRepository: Repository<Admin >,
     ){}
-    async findByEmail(email: string) {
-      const admin = await this.adminRepository.findOne({ where: { email: Email } });
-      if (admin) {
-        return admin;
-      }
-      throw new Error('Admin not found.');
+    async findByEmail(email: string): Promise<Admin | null> {
+      const admin = await this.adminRepository.findOne({ where: { email } });
+      return admin || null;
     }
+    
 
   create(createAdminDto: CreateAdminDto) {
     return 'This action adds a new admin';

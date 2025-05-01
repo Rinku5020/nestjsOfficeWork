@@ -26,6 +26,7 @@
 
 <body>
 
+
     <div class="auth-page-wrapper pt-5">
         <!-- auth page bg -->
         <div class="auth-one-bg-position auth-one-bg" id="auth-particles">
@@ -65,11 +66,14 @@
                                     <p class="text-muted">Sign in to continue to Velzon.</p>
                                 </div>
                                 <div class="p-2 mt-4">
-                                    <form action="">
+                                    <form action="/admin/logincheck" method="post">
 
                                         <div class="mb-3">
-                                            <label for="username" class="form-label">Username</label>
-                                            <input type="text" class="form-control" id="username" placeholder="Enter username">
+                                            <label for="username" class="form-label">Email</label>
+                                            <input type="text" class="form-control" id="username" name="email" placeholder="Enter username">
+                                            {{#if message}}
+                                            <span style="color: red;">{{message}}</span>
+                                            {{/if}}
                                         </div>
 
                                         <div class="mb-3">
@@ -78,9 +82,12 @@
                                             </div>
                                             <label class="form-label" for="password-input">Password</label>
                                             <div class="position-relative auth-pass-inputgroup mb-3">
-                                                <input type="password" class="form-control pe-5" placeholder="Enter password" id="password-input">
+                                                <input type="password" class="form-control pe-5" name="Password" placeholder="Enter password" id="password-input">
                                                 <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
                                             </div>
+                                            {{#if message}}
+                                            <span style="color: red;">{{message}}</span>
+                                            {{/if}}
                                         </div>
 
                                         <div class="form-check">

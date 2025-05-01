@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as hbs from 'hbs';
-import * as methodOverride from 'method-override';
+import * as session from 'express-session';
 import { UserModule } from './user/user.module';
 
 async function bootstrap() {
@@ -20,6 +20,16 @@ async function bootstrap() {
     }
     return array === value;
   });
+
+  app.use(
+    session({
+      secret: 'your-secret-key', // Change this to a strong secret
+      resave: false,
+      saveUninitialized: false,
+      cookie: { secure: false } // Set secure: true if using HTTPS
+    })
+  );
+  
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
