@@ -4,6 +4,7 @@ import { join } from 'path';
 import * as hbs from 'hbs';
 import * as session from 'express-session';
 import { UserModule } from './user/user.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(UserModule);
@@ -23,13 +24,19 @@ async function bootstrap() {
 
   app.use(
     session({
-      secret: 'your-secret-key', // Change this to a strong secret
+      secret: 'your-secret-key',
       resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false } // Set secure: true if using HTTPS
-    })
+      saveUninitialized: true, // must be true to persist session
+      cookie: {
+        maxAge: 3600000, // 1 hour
+        httpOnly: true,
+        secure: false,   // must be false on localhost (no HTTPS)
+        sameSite: 'lax', // helps preserve session across redirects
+      },
+    }),
   );
-  
+  app.useGlobalPipes(new ValidationPipe());
+
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

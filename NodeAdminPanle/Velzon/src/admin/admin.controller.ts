@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Render, Query, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Render, Query, Req, Session } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+
 
 
 @Controller('admin')
@@ -12,8 +13,11 @@ export class AdminController {
 
 
   @Get('login')
-  LoginView(@Query('message') message: string, @Res() res: Response) {
-    return res.render('login', { message });
+  LoginView(
+  @Query('message',) message: string,
+  @Query('success') success: string,
+  @Res() res: Response) {
+    return res.render('login', { message, success });
   }
 
   @Post('logincheck')
@@ -57,18 +61,62 @@ getEmail(@Query('message') message: string, @Res() res: Response) {
 }
 
 @Post('verify')
-async verify(@Body() body: { email: string }, @Res() res: Response) {
+async verify(@Body() body: { email: string },@Res({ passthrough: true }) res: Response,@Session() session: Record<string, any>,
+) {
   const { email } = body;
   const admin = await this.adminService.findByEmail(email);
-  if (!admin ) {
-    return res.redirect('/admin/Emailverify?message= invalid email and must be required');
+  
+  if (!admin) {
+    res.redirect('/admin/Emailverify?message= invalid email and must be required');
+    return;
   }
-  return res.redirect('/admin/reset?message=Email verified successfully');
+
+  session.email = email;
+  console.log('Email set in session:', session.email);
+
+  res.redirect('/admin/reset?success=Email verified successfully');
 }
 
+
 @Get('reset')
-reset(@Query('message') message: string, @Res() res: Response) {
-  return res.render('reset', { message });
+reset(
+  @Query('message') message: string,
+  @Query('success') success: string,
+  @Res() res: Response
+) {
+  return res.render('reset', { message, success });
 }
+
+
+@Post('resetpassword')
+async resetPassword(
+  @Body() body: { Password: string },
+  @Res() res: Response,
+  @Session() session: Record<string, any>,
+) {
+  const { Password: rawPassword } = body;
+  const email = session.email;
+
+  if (!email || !rawPassword) {
+    return res.redirect('/admin/reset?message= required password');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(rawPassword, salt);
+
+  const updateUserDto = { email, password: hash };
+
+  await this.adminService.updatePassword(updateUserDto);
+
+  
+  session.email = null;
+
+  return res.redirect('/admin/login?success=Password reset successfully');
+}
+
+
+
+
+
 
 }

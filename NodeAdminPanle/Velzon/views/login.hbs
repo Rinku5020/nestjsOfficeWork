@@ -26,7 +26,23 @@
 
 <body>
 
+    {{#if success}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: "{{success}}",
+            icon: 'success',
+            confirmButtonText: 'OK',
+            width: '300px',
+            position: 'top-end',
+            toast: true,
+            showConfirmButton: false,
+            timer: 2000
+        });
 
+    </script>
+    {{/if}}
     <div class="auth-page-wrapper pt-5">
         <!-- auth page bg -->
         <div class="auth-one-bg-position auth-one-bg" id="auth-particles">

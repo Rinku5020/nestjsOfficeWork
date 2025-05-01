@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Admin } from './entities/admin.entity';
 
 
+
 @Injectable()
 export class AdminService {
 constructor(
@@ -15,6 +16,17 @@ constructor(
 async findByEmail(email: string): Promise<Admin | null> {
   const admin = await this.adminRepository.findOne({ where: { email } });
   return admin || null;
+}
+
+async updatePassword(updateUserDto: { email: string; password: string }) {
+  const result = await this.adminRepository.findOneBy({ email: updateUserDto.email });
+
+  if (result) {
+    result.password = updateUserDto.password;
+    return this.adminRepository.save(result);
+  }
+
+  throw new Error('Admin not found');
 }
 
 
