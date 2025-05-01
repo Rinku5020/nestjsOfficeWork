@@ -35,9 +35,10 @@ export class AdminController {
     req.session.admin = {
       id: admin.id,
       email: admin.email,
-      
-      
-    };
+      FirstName: admin.FirstName,
+      LastName: admin.LastName
+  
+};
    
     return res.redirect('/user/?message=login successfully');
   }

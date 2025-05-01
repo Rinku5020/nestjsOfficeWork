@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete,ValidationPipe, Put, Res, Render, UseInterceptors, UploadedFile, Query, UseGuards,} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,ValidationPipe, Put, Res, Render, UseInterceptors, UploadedFile, Query, UseGuards, Session,} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -16,15 +16,18 @@ export class UserController {
 
 @Get('/')
 @UseGuards(AuthGuard) 
-userHome(@Query() query: any, @Res() res: Response) {
+userHome(@Query() query: any, @Res() res: Response, @Session() session: Record<string, any>) {
+  const admin = session.admin;
+
   const { message } = query;
-  res.render('dashboard', { message }); // ✅ Pass message from query to template
+  res.render('dashboard', { message ,admin}); 
 }
 
   @Get("form")
   @UseGuards(AuthGuard) 
-  FormView(@Res() res: Response) {
-    res.render('form');
+  FormView(@Res() res: Response , @Session() session: Record<string, any>) {
+    const admin = session.admin;
+    res.render('form', { admin });
   }
 
   @Post('createForm')
@@ -83,21 +86,23 @@ userHome(@Query() query: any, @Res() res: Response) {
 
   @Get('getForm')
   @UseGuards(AuthGuard) 
-  async findAll(@Res() res: Response, @Query('message') message: string) {
+  async findAll(@Res() res: Response, @Query('message') message: string, @Session() session: Record<string, any>) {
+    const admin = session.admin;
     const Data = await this.userService.findAll();
-    res.render('dataTable', { Data, message });
+    res.render('dataTable', { Data, message, admin });
   }
 
   @Get('getForm/:id')
   @UseGuards(AuthGuard) 
- async findOne(@Param('id') id: string, @Res() res: Response) {
-   const user = await this.userService.findOne(+id);
+ async findOne(@Param('id') id: string, @Res() res: Response, @Session() session: Record<string, any>) {
+  const admin = session.admin; 
+  const user = await this.userService.findOne(+id);
    const hobbies = user ? {
     playing: user.hobbies.includes('playing'),
     reading: user.hobbies.includes('reading'),
     travelling: user.hobbies.includes('travelling')
   } : { playing: false, reading: false, travelling: false };
-   res.render('editForm', { user,hobbies });
+   res.render('editForm', { user,hobbies ,admin});
   }
 
   @Post('update/:id')
