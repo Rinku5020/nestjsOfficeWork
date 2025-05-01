@@ -41,33 +41,34 @@ export class AdminController {
 
 
 
-  @Get('logout')
-  logout(@Res() res: Response, @Req() req: Request & { session: any }) {
-    req.session.destroy((err: Error | null) => {
-      if (err) {
-        return res.status(500).json({ message: 'Logout failed' });
-      }
-      return res.status(302).redirect('/admin/login');
-    });
-  }
+@Get('logout')
+logout(@Res() res: Response, @Req() req: Request & { session: any }) {
+  req.session.destroy((err: Error | null) => {
+    if (err) {
+      return res.status(500).json({ message: 'Logout failed' });
+    }
+    return res.status(302).redirect('/admin/login');
+  });
+}
 
-  @Get()
-  findAll() {
-    return this.adminService.findAll();
-  }
+@Get('Emailverify')
+getEmail(@Query('message') message: string, @Res() res: Response) {
+  return res.render('email', { message });
+}
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+@Post('verify')
+async verify(@Body() body: { email: string }, @Res() res: Response) {
+  const { email } = body;
+  const admin = await this.adminService.findByEmail(email);
+  if (!admin ) {
+    return res.redirect('/admin/Emailverify?message= invalid email and must be required');
   }
+  return res.redirect('/admin/reset?message=Email verified successfully');
+}
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
-  }
+@Get('reset')
+reset(@Query('message') message: string, @Res() res: Response) {
+  return res.render('reset', { message });
+}
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
-  }
 }
