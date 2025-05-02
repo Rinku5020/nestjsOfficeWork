@@ -34,6 +34,23 @@
 </head>
 
 <body>
+        {{#if success}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: "{{success}}",
+            icon: 'success',
+            confirmButtonText: 'OK',
+            width: '300px',
+            position: 'top-end',
+            toast: true,
+            showConfirmButton: false,
+            timer: 2000
+        });
+
+    </script>
+    {{/if}}
 
     <!-- Begin page -->
     <div id="layout-wrapper">
@@ -1019,22 +1036,28 @@
                                 </button>
 
                                 <!-- Password Fields (Initially Hidden) -->
-                                <form id="passwordSection" class="d-none" method="POST" action="/admin/resetpassword">
+                                <form id="passwordSection" class="d-none" method="POST" action="/admin/chnagePassword">
                                 <div class="mb-3">
                                     <div class="input-group">
-                                        <input type="password" name="Password" class="form-control" placeholder="New Password"  id="newPassword1">
+                                        <input type="password" name="password" class="form-control" placeholder="New Password"  id="newPassword1">
                                         <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('newPassword1')">
                                             <i class="ri-eye-off-line" id="toggleIcon-newPassword1"></i>
                                         </button>
                                     </div>
+                                     {{#if message}}
+                                            <span style="color: red;">{{message}}</span>
+                                    {{/if}}
                                 </div>
                                 <div class="mb-3">
                                     <div class="input-group">
-                                        <input type="password" name="ConfirmPassword" class="form-control"  placeholder="Confirm Password"  id="newPassword2">
+                                        <input type="password" name="confirmPassword" class="form-control"  placeholder="Confirm Password"  id="newPassword2">
                                         <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('newPassword2')">
                                             <i class="ri-eye-off-line" id="toggleIcon-newPassword2"></i>
                                         </button>
                                     </div>
+                                     {{#if message}}
+                                            <span style="color: red;">{{message}}</span>
+                                    {{/if}}
                                     
                                 </div>
                                 <button type="submit" class="btn btn-success w-100">Save Password</button>

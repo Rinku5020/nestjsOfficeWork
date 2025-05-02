@@ -118,27 +118,34 @@ async resetPassword(
 
 @Get('profile')
 @UseGuards(AuthGuard) 
-getProfile(@Res() res: Response, @Session() session: Record<string, any> ) {
+getProfile(@Res() res: Response,
+@Query('message',) message: string,
+@Query('success') success: string,
+@Session() session: Record<string, any> ) {
   const admin = session.admin;
-  return res.render('profile', { admin });
+  return res.render('profile', { admin, message, success });
 }
 
 @Post('chnagePassword')
 async changePassword(
-@Body() body: { Password: string , ConfirmPassword: string }, 
+@Body() body: { password: string , confirmPassword: string }, 
 @Res() res: Response, 
 @Session() session: Record<string, any>) {
-  const { Password, ConfirmPassword } = body;
+  const { password, confirmPassword } = body;
   const email = session.email;
-  if(Password !== ConfirmPassword) {
-    return res.redirect('/user/profile?message=Password does not match');
+  if (!password || !confirmPassword) {
+    return res.redirect('/admin/profile?message=Both password fields are required');
+  }
+  
+  if (password !== confirmPassword) {
+    return res.redirect('/admin/profile?message=Passwords do not match');
   }
   const salt = await bcrypt.genSalt(10);
-  const hash = await bcrypt.hash(Password, salt);
+  const hash = await bcrypt.hash(password, salt);
   const updateUserDto = { email, password: hash };
   await this.adminService.updatePassword(updateUserDto);
   session.email = null;
-  return res.redirect('/user/profile?message=Password updated successfully');
+  return res.redirect('/admin/profile?success=Password updated successfully');
 
 }
 
