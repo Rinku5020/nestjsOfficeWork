@@ -140,4 +140,12 @@ async remove(@Param('id') id: string, @Res() res: Response) {
   await this.userService.remove(+id); 
   return res.redirect('/user/getForm?message=User deleted successfully!');
 }
+
+@Get('profile')
+@UseGuards(AuthGuard) 
+getProfile(@Res() res: Response, @Session() session: Record<string, any> ) {
+  const admin = session.admin;
+  return res.render('profile', { admin });
+}
+
 }
