@@ -106,7 +106,6 @@ userHome(@Query() query: any, @Res() res: Response, @Session() session: Record<s
   }
 
   @Post('update/:id')
-  @UseGuards(AuthGuard) 
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
       destination: './public/uploads',
@@ -116,18 +115,34 @@ userHome(@Query() query: any, @Res() res: Response, @Session() session: Record<s
       }
     })
   }))
-  async update(@Param('id') id: string, @Res() res: Response, @Body() body: any, @UploadedFile() image: Express.Multer.File) {
-    const { FirstName, LastName, Email, Phone, gender, hobbies, dateOfBirth, address } = body;
+  async update(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Body() body: any,
+    @UploadedFile() image: Express.Multer.File
+  ) {
+    const dto = plainToInstance(UpdateUserDto, body);
+    const errors = await validate(dto);
+  
+    if (errors.length > 0) {
+      
+      const formattedErrors: Record<string, string> = {};
+      errors.forEach(err => {
+        if (err.constraints) {
+          formattedErrors[err.property] = Object.values(err.constraints).join(', ');
+        }
+      });
+  
+      
+      return res.render('editForm', {
+        user: { ...body, id },
+        errors: formattedErrors
+      });
+    }
+  
     const updateUserDto = {
-      FirstName,
-      LastName,
-      Email,
-      Phone,
-      gender,
-      hobbies,
-      dateOfBirth,
-      address,
-      image: image?.filename || body.image 
+      ...body,
+      image: image?.filename || body.image
     };
   
     await this.userService.update(+id, updateUserDto);
