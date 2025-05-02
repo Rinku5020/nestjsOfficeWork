@@ -1021,10 +1021,21 @@
                                 <!-- Password Fields (Initially Hidden) -->
                                 <form id="passwordSection" class="d-none" method="POST" action="/admin/resetpassword">
                                 <div class="mb-3">
-                                    <input type="password" name="Password" class="form-control" placeholder="New Password" required>
+                                    <div class="input-group">
+                                        <input type="password" name="Password" class="form-control" placeholder="New Password"  id="newPassword1">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('newPassword1')">
+                                            <i class="ri-eye-off-line" id="toggleIcon-newPassword1"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
-                                    <input type="password" name="ConfirmPassword" class="form-control" placeholder="Confirm Password" required>
+                                    <div class="input-group">
+                                        <input type="password" name="ConfirmPassword" class="form-control"  placeholder="Confirm Password"  id="newPassword2">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('newPassword2')">
+                                            <i class="ri-eye-off-line" id="toggleIcon-newPassword2"></i>
+                                        </button>
+                                    </div>
+                                    
                                 </div>
                                 <button type="submit" class="btn btn-success w-100">Save Password</button>
                                 </form>
@@ -1098,6 +1109,21 @@
             <script src="assets/js/app.js"></script>
             <!-- form wizard init -->
     <script src="assets/js/pages/form-wizard.init.js"></script>
+<script>
+function togglePasswordVisibility(inputId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(`toggleIcon-${inputId}`);
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleIcon.classList.remove("ri-eye-off-line");
+        toggleIcon.classList.add("ri-eye-line");
+    } else {
+        passwordInput.type = "password";
+        toggleIcon.classList.remove("ri-eye-line");
+        toggleIcon.classList.add("ri-eye-off-line");
+    }
+}
+</script>
 
 </body>
 
