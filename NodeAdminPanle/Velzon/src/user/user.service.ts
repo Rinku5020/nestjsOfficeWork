@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -72,4 +72,49 @@ export class UserService {
     }
     return this.userRepository.delete(id);
   }
+
+
+
+async chartData(): Promise<number[]> {
+  const users = await this.userRepository.find({
+    where: { dateOfBirth: Not(IsNull()) },
+  });
+
+  const monthCounts = Array(12).fill(0); 
+
+  users.forEach(user => {
+    const month = new Date(user.dateOfBirth).getMonth(); 
+    monthCounts[month]++;
+  });
+
+  return monthCounts;
+}
+
+
+
+async adreessData(): Promise<Record<string, number>> {
+  const users = await this.userRepository.find({
+    where: { address: Not(IsNull()) },
+  });
+
+  const counts = {
+    India: 0,
+    Russia: 0,
+    Greenland: 0,
+  };
+
+  users.forEach(user => {
+    const address = user.address.toLowerCase();
+    if (address.includes('india')) {
+      counts.India++;
+    } else if (address.includes('russia')) {
+      counts.Russia++;
+    } else if (address.includes('greenland')) {
+      counts.Greenland++;
+    }
+  });
+
+  return counts;
+}
+
 }

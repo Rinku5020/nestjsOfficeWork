@@ -16,11 +16,21 @@ export class UserController {
 
 @Get('/')
 @UseGuards(AuthGuard) 
-userHome(@Query() query: any, @Res() res: Response, @Session() session: Record<string, any>) {
+async userHome(@Query() query: any, @Res() res: Response, @Session() session: Record<string, any>) {
   const admin = session.admin;
-
   const { message } = query;
-  res.render('dashboard', { message ,admin}); 
+  const chartData = await this.userService.chartData();
+  const mapData = await this.userService.adreessData();
+  
+  res.render('dashboard', {
+    message,
+    admin,
+    chartData: JSON.stringify(chartData),
+    mapData, 
+  });
+
+
+
 }
 
   @Get("form")
@@ -155,7 +165,6 @@ async remove(@Param('id') id: string, @Res() res: Response) {
   await this.userService.remove(+id); 
   return res.redirect('/user/getForm?message=User deleted successfully!');
 }
-
 
 
 
