@@ -10,7 +10,14 @@ const User = Connection.define('user', {
     Phone: { type: DataTypes.STRING, allowNull: false, validate: { is: /^[0-9]{10}$/ }},
     Gender: { type: DataTypes.STRING, allowNull: false },
     DOB: { type: DataTypes.DATEONLY, allowNull: false },
-    Hobbies: { type: DataTypes.STRING, allowNull: false },
+    Hobbies: {type: DataTypes.STRING,allowNull: false,
+        get() {
+          return this.getDataValue('Hobbies')?.split(',').map(hobby => hobby.trim());
+        },
+        set(value) {
+          this.setDataValue('Hobbies', Array.isArray(value) ? value.join(', ') : value);
+        }
+      },
     Image: { type: DataTypes.STRING, allowNull: false }
 },
     {

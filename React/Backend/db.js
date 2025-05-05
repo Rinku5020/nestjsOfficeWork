@@ -1,15 +1,19 @@
 const { Sequelize } = require("sequelize");
 const dotenv = require('dotenv').config();
 const Connection = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,  
+  'reactdb',
+  'root',
+  '',  
          
   {
-    host: process.env.DB_HOST,
+    host: 'localhost',
     dialect: 'mysql',
-    port: process.env.PORT, 
+    port: process.env.DB_PORT,
   }
+  
 );
+Connection.authenticate()
+  .then(() => console.log(`MySQL DB connected successfully run on port ${process.env.DB_PORT}`))
+  .catch(err => console.error("DB connection failed:", err));
 
 module.exports = Connection;
